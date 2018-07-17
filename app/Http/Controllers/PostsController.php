@@ -8,14 +8,17 @@ use App\Post;
 class PostsController extends Controller
 {
     public function index()
+
     {
-        return view('posts.index');
+        $posts = Post::all();
+        return view('posts.index', compact('posts'));
     }
 
-//    public function show(Post $post)
-//    {
-//        return view('posts.show');
-//    }
+    public function show()
+    {
+        return view('posts.show');
+    }
+
     public function create()
     {
         return view('posts.create');
@@ -25,9 +28,9 @@ class PostsController extends Controller
     {
 
 
-        $this->validate(request(),[
-           'title'=>'required',
-           'body'=>'required'
+        $this->validate(request(), [
+            'title' => 'required',
+            'body' => 'required'
         ]);
 //        instead write this we can write
 //        Post::create([
@@ -36,7 +39,7 @@ class PostsController extends Controller
 //
 //        ]);
 //        or we can write
-        Post::create(request(['title','body']));
+        Post::create(request(['title', 'body']));
 //        redirect to the home page
         return redirect('/posts');
     }
