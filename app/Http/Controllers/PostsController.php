@@ -7,14 +7,25 @@ use App\Post;
 
 class PostsController extends Controller
 {
-    public function index()
-
+    public function __construct()
     {
-        $posts = Post::all();
-        return view('posts.index', compact('posts'));
+        $this->middleware('auth')->except(['index', 'show']);
     }
 
-    public function show($id){
+
+    public function index()
+    {
+        $posts = Post::all();
+        $archives = Post::selectRaw('year(created_at) year, monthname(created_at) month, count(*) published')
+            ->groupBy('year', 'month')
+            ->orderByRaw('min(created_at)desc')
+            ->get()
+            ->toArray();
+        return view('posts.index', compact('posts', 'archives'));
+    }
+
+    public function show($id)
+    {
         $post = Post::find($id);
         return view('posts.show', compact('post'));
     }
@@ -39,7 +50,15 @@ class PostsController extends Controller
 //
 //        ]);
 //        or we can write
-        Post::create(request(['title', 'body']));
+//        Post::create([
+//            'title' => request('title'),
+//            'body' => request('body'),
+//            'user_id' => auth()->id()
+//        ]);
+
+        auth()->user()->publish(
+            new Post(request(['title', 'body']))
+        );
 //        redirect to the home page
         return redirect('/posts');
     }
